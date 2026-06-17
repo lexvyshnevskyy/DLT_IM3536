@@ -3,6 +3,12 @@ im3536_node:
     # Interface: rs232 | usb | lan
     interface: rs232
 
+    # E720-compatible publisher (core / webui subscribe via measure_source)
+    endpoint: im3536
+    publish_rate: 2.0
+    frame_id_ready: im3536_ready
+    frame_id_offline: im3536_offline
+
     # RS-232C / USB (virtual COM on Linux, e.g. /dev/ttyUSB0 or /dev/ttyACM0)
     port: /dev/ttyUSB0
     baudrate: 9600
@@ -16,13 +22,14 @@ im3536_node:
     # Hioki message terminator configured on the instrument: cr | crlf
     terminator: crlf
     query_timeout_sec: 2.0
-    poll_period_sec: 0.5
     reconnect_period_sec: 2.0
+    offline_timeout_sec: 2.0
+    offline_publish_period_sec: 1.0
+    frequency_query_every: 5
 
     measure_command: ":MEASure?"
+    frequency_command: ":FREQuency?"
     idn_command: "*IDN?"
     query_on_connect: true
-    source_name: im3536
     raw_topic: im3536/raw
-    measurement_topic: im3536/measurement
     connected_topic: im3536/connected
