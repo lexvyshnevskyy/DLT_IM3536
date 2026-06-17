@@ -20,10 +20,12 @@ Set impedance meter source in Web UI **Configuration → Impedance meter source*
 DELATOMETRY_MEASURE_SOURCE=im3536   # or e720
 ```
 
-Core and Web UI subscribe to `/im3536` or `/measure_device` accordingly. Service: `delatometry-im3536.service`.
+Core and Web UI subscribe to `/im3536` or `/e720` accordingly. Service: `delatometry-im3536.service`.
 
 SCPI: `:MEASure?`, `:FREQuency?` → `E720.firstvalue`, `secondvalue`, `frequency`.
 
 Topics: `/im3536` (E720), `im3536/raw`, `im3536/connected`.
 
 **Full documentation:** [docs/en/hardware.md](../../docs/en/hardware.md) · [docs/uk/hardware.md](../../docs/uk/hardware.md)
+
+**Документація українською:** [docs/uk/hardware.md](../../docs/uk/hardware.md)
