@@ -1,0 +1,5 @@
+im3536_node:
+  ros__parameters:
+    port: /dev/ttyUSB0
+    baudrate: 9600
+    measurement_topic: im3536/measurement
