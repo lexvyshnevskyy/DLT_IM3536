@@ -29,6 +29,9 @@ im3536_node:
 
     measure_command: ":MEASure?"
     frequency_command: ":FREQuency?"
+    frequency_set_command: ":FREQuency {value}"
+    frequency_settle_sec: 0.05
+    frequency_topic: im3536/frequency
     idn_command: "*IDN?"
     query_on_connect: true
     raw_topic: im3536/raw

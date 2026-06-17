@@ -6,7 +6,7 @@ from typing import Optional
 import rclpy
 from msgs.msg import E720
 from rclpy.node import Node
-from std_msgs.msg import Bool, String
+from std_msgs.msg import Bool, Float64, String
 
 from .e720_publish import build_e720_message
 from .protocol import HiokiProtocol
@@ -39,6 +39,9 @@ class Im3536Node(Node):
         self.declare_parameter('frame_id_offline', 'im3536_offline')
         self.declare_parameter('measure_command', ':MEASure?')
         self.declare_parameter('frequency_command', ':FREQuency?')
+        self.declare_parameter('frequency_set_command', ':FREQuency {value}')
+        self.declare_parameter('frequency_settle_sec', 0.05)
+        self.declare_parameter('frequency_topic', 'im3536/frequency')
         self.declare_parameter('idn_command', '*IDN?')
         self.declare_parameter('query_on_connect', True)
         self.declare_parameter('raw_topic', 'im3536/raw')
@@ -66,6 +69,12 @@ class Im3536Node(Node):
         self._frequency_query_every = max(1, int(self.get_parameter('frequency_query_every').value))
         self._measure_command = str(self.get_parameter('measure_command').value)
         self._frequency_command = str(self.get_parameter('frequency_command').value)
+        self._frequency_set_command = str(self.get_parameter('frequency_set_command').value)
+        self._frequency_settle_sec = max(0.0, float(self.get_parameter('frequency_settle_sec').value))
+        frequency_topic = str(self.get_parameter('frequency_topic').value)
+        if not frequency_topic.startswith('/'):
+            frequency_topic = f'/{frequency_topic}'
+        self._frequency_topic = frequency_topic
         self._idn_command = str(self.get_parameter('idn_command').value)
         self._query_on_connect = bool(self.get_parameter('query_on_connect').value)
         self._frame_id_ready = str(self.get_parameter('frame_id_ready').value)
@@ -82,6 +91,7 @@ class Im3536Node(Node):
         self._poll_count = 0
 
         self._e720_pub = self.create_publisher(E720, self._endpoint, 10)
+        self.create_subscription(Float64, self._frequency_topic, self._on_frequency_command, 10)
         self._raw_pub = self.create_publisher(String, str(self.get_parameter('raw_topic').value), 50)
         self._connected_pub = self.create_publisher(
             Bool,
@@ -100,6 +110,37 @@ class Im3536Node(Node):
             return f'LAN {self._host}:{self._lan_port}, terminator={self._terminator}'
         label = 'RS-232C' if self._interface == 'rs232' else 'USB'
         return f'{label} {self._port} @ {self._baudrate} baud, terminator={self._terminator}'
+
+    def _format_frequency_command(self, frequency_hz: float) -> str:
+        return self._frequency_set_command.format(value=f'{frequency_hz:g}')
+
+    def _set_frequency(self, frequency_hz: float) -> bool:
+        if self._protocol is None:
+            return False
+        if frequency_hz <= 0.0:
+            return False
+        if abs(frequency_hz - self._last_frequency_hz) < 1e-9:
+            return True
+        command = self._format_frequency_command(frequency_hz)
+        if self._protocol.write_command(command) <= 0:
+            return False
+        self._last_frequency_hz = frequency_hz
+        if self._frequency_settle_sec > 0.0:
+            time.sleep(self._frequency_settle_sec)
+        self.get_logger().info(f'IM3536 frequency set to {frequency_hz:g} Hz ({command})')
+        return True
+
+    def _on_frequency_command(self, msg: Float64) -> None:
+        try:
+            if self._protocol is None:
+                self._try_connect()
+            if self._protocol is None:
+                self.get_logger().warning('IM3536 frequency command ignored: not connected')
+                return
+            if not self._set_frequency(float(msg.data)):
+                self.get_logger().warning(f'IM3536 failed to set frequency {msg.data:g} Hz')
+        except Exception as exc:
+            self.get_logger().error(f'IM3536 frequency command error: {exc}')
 
     def _set_connected(self, connected: bool) -> None:
         if connected == self._connected:

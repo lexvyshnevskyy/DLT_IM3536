@@ -24,7 +24,9 @@ Core and Web UI subscribe to `/im3536` or `/e720` accordingly. Service: `delatom
 
 SCPI: `:MEASure?`, `:FREQuency?` → `E720.firstvalue`, `secondvalue`, `frequency`.
 
-Topics: `/im3536` (E720), `im3536/raw`, `im3536/connected`.
+Topics: `/im3536` (E720), `im3536/raw`, `im3536/connected`, `/im3536/frequency` (Float64 Hz during program sweep).
+
+Program frequency sweeps (Web UI) send `:FREQuency` SCPI commands when `DELATOMETRY_MEASURE_SOURCE=im3536`.
 
 **Full documentation:** [docs/en/hardware.md](../../docs/en/hardware.md) · [docs/uk/hardware.md](../../docs/uk/hardware.md)
 
