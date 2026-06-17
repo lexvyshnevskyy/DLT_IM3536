@@ -2,7 +2,7 @@
 <package format="3">
   <name>im3536</name>
   <version>0.1.0</version>
-  <description>ROS 2 driver node for the Hioki IM3536 LCR meter (stub).</description>
+  <description>ROS 2 driver node for the Hioki IM3536 LCR meter (RS-232C, USB, LAN).</description>
   <maintainer email="lex.vyshnevskyy@gmail.com">Oleksii Vyshnevskyi</maintainer>
   <license>MIT</license>
 
@@ -14,6 +14,7 @@
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>python3-serial</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

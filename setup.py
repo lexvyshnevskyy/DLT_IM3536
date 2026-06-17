@@ -13,11 +13,11 @@ setup(
         ('share/' + package_name + '/launch', glob('launch/*.py')),
         ('share/' + package_name + '/config', glob('config/*.yaml')),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'pyserial'],
     zip_safe=False,
     maintainer='Oleksii Vyshnevskyi',
     maintainer_email='lex.vyshnevskyy@gmail.com',
-    description='ROS 2 driver node for the Hioki IM3536 LCR meter (stub).',
+    description='ROS 2 driver node for the Hioki IM3536 LCR meter (RS-232C, USB, LAN).',
     license='MIT',
     entry_points={
         'console_scripts': [

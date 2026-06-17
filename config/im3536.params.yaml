@@ -1,5 +1,28 @@
 im3536_node:
   ros__parameters:
+    # Interface: rs232 | usb | lan
+    interface: rs232
+
+    # RS-232C / USB (virtual COM on Linux, e.g. /dev/ttyUSB0 or /dev/ttyACM0)
     port: /dev/ttyUSB0
     baudrate: 9600
+    rtscts: false
+    xonxoff: false
+
+    # LAN (set IP/port on the instrument SYSTEM screen; no DHCP)
+    host: 192.168.0.100
+    lan_port: 23
+
+    # Hioki message terminator configured on the instrument: cr | crlf
+    terminator: crlf
+    query_timeout_sec: 2.0
+    poll_period_sec: 0.5
+    reconnect_period_sec: 2.0
+
+    measure_command: ":MEASure?"
+    idn_command: "*IDN?"
+    query_on_connect: true
+    source_name: im3536
+    raw_topic: im3536/raw
     measurement_topic: im3536/measurement
+    connected_topic: im3536/connected
