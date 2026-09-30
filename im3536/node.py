@@ -148,7 +148,11 @@ class Im3536Node(Node):
         self._connected = connected
         msg = Bool()
         msg.data = connected
-        self._connected_pub.publish(msg)
+        try:
+            self._connected_pub.publish(msg)
+        except Exception:
+            # Teardown / invalid RCL context must not abort destroy_node.
+            pass
 
     def _try_connect(self) -> None:
         now_ns = self.get_clock().now().nanoseconds
@@ -272,7 +276,18 @@ class Im3536Node(Node):
         )
 
     def destroy_node(self) -> bool:
-        self._close_transport()
+        try:
+            # Close I/O first; avoid publishing while context is shutting down.
+            if self._transport is not None:
+                try:
+                    self._transport.close()
+                except Exception:
+                    pass
+            self._transport = None
+            self._protocol = None
+            self._connected = False
+        except Exception:
+            pass
         return super().destroy_node()
 
 
@@ -284,8 +299,15 @@ def main(args=None) -> None:
     except KeyboardInterrupt:
         pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        try:
+            if rclpy.ok():
+                rclpy.shutdown()
+        except Exception:
+            pass
 
 
 if __name__ == '__main__':
